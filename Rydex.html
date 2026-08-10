@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#080805" />
+<title>Rydex — Premium Car Rental</title>
+
+<!-- Google Fonts: Figtree (300, 400, 500) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500&display=swap" rel="stylesheet" />
+
+<!-- Iconify (solar icon set via web component) -->
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+
+<!-- Tailwind CSS (CDN / config-driven) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          background: "#080805",
+          accent: "#D4D414",
+          card: "#111110",
+          border: "#242420",
+          muted: "#8B8B80",
+        },
+        fontFamily: {
+          sans: ["Figtree", "system-ui", "sans-serif"],
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  html { background: #080805; }
+  body {
+    background: #080805;
+    color: #ffffff;
+    font-family: "Figtree", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* selection:bg-accent selection:text-black */
+  ::selection { background: #D4D414; color: #000000; }
+
+  /* .glass-panel */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.05);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* .hide-scrollbar */
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  iconify-icon { display: inline-block; vertical-align: -0.125em; }
+</style>
+
+<!-- ESM import map: single React instance shared with Framer Motion -->
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "framer-motion": "https://esm.sh/framer-motion@10.16.4?external=react,react-dom"
+  }
+}
+</script>
+
+<!-- Babel Standalone for in-browser JSX (module output so importmap resolves) -->
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+</head>
+
+<body class="bg-[#080805] text-white font-['Figtree'] antialiased overflow-x-hidden">
+<div id="root"></div>
+
+<script type="text/babel" data-type="module" data-presets="react">
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { motion } from "framer-motion";
+
+/* ------------------------------------------------------------------ */
+/* Assets                                                             */
+/* ------------------------------------------------------------------ */
+const HERO =
+  "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=2938&auto=format&fit=crop";
+
+const CARS = [
+  {
+    name: "Rapt Horizon",
+    type: "Grand Tourer",
+    price: "$320",
+    hp: "650 HP",
+    km: "12K km",
+    city: "Dubai",
+    img: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=800&auto=format&fit=crop",
+  },
+  {
+    name: "Velocit Crest",
+    type: "Supercar",
+    price: "$410",
+    hp: "720 HP",
+    km: "8K km",
+    city: "Abu Dhabi",
+    img: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=800&auto=format&fit=crop",
+  },
+  {
+    name: "Xplorer Glide",
+    type: "Luxury SUV",
+    price: "$280",
+    hp: "480 HP",
+    km: "20K km",
+    city: "Dubai",
+    img: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=800&auto=format&fit=crop",
+  },
+  {
+    name: "Glide Vortex",
+    type: "Hypercar",
+    price: "$520",
+    hp: "800 HP",
+    km: "5K km",
+    city: "Sharjah",
+    img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop",
+  },
+];
+
+const STATS = [
+  { num: "12", suffix: "M+", label: "Kilometers Driven" },
+  { num: "8", suffix: "K+", label: "Happy Renters" },
+  { num: "98", suffix: "%", label: "Satisfaction Rate" },
+  { num: "50", suffix: "+", label: "Premium Models" },
+];
+
+const BENEFITS = [
+  {
+    icon: "solar:car-linear",
+    title: "Extensive Fleet",
+    desc: "From grand tourers to track-bred supercars, choose from a curated selection of the world's finest machines.",
+  },
+  {
+    icon: "solar:dollar-minimalistic-linear",
+    title: "Transparent Pricing",
+    desc: "No hidden fees, no surprises. Clear daily rates with everything included, exactly as promised.",
+  },
+  {
+    icon: "solar:wrench-linear",
+    title: "24/7 Concierge",
+    desc: "Round-the-clock support and roadside assistance, wherever the road takes you across the Emirates.",
+  },
+];
+
+const TESTIMONIALS = [
+  { u: 0, name: "Layla Haddad", location: "Dubai, UAE", quote: "The booking was effortless and the car arrived spotless. Rydex turned an ordinary weekend into something unforgettable." },
+  { u: 1, name: "Marco Bellini", location: "Abu Dhabi, UAE", quote: "Genuine supercars, honest pricing, and a team that actually cares. I won't rent from anyone else." },
+  { u: 2, name: "Sara Nakamura", location: "Dubai, UAE", quote: "From the first call to the return, everything felt premium. The attention to detail is simply unmatched." },
+  { u: 3, name: "Omar Farouk", location: "Sharjah, UAE", quote: "Picked up a Velocit Crest for a desert drive — flawless condition and incredible power. Ten out of ten." },
+  { u: 4, name: "Elena Petrova", location: "Dubai, UAE", quote: "The concierge sorted everything before I even asked. This is how luxury rental should feel." },
+  { u: 5, name: "James Whitfield", location: "Abu Dhabi, UAE", quote: "Transparent rates and zero hassle. The Glide Vortex was easily the highlight of my entire trip." },
+  { u: 6, name: "Aisha Rahman", location: "Dubai, UAE", quote: "Immaculate cars and a seamless experience. Rydex has quietly set a new standard for me." },
+  { u: 7, name: "Daniel Osei", location: "Dubai, UAE", quote: "Fast, professional, and genuinely passionate about their fleet. Highly recommend to anyone visiting." },
+  { u: 8, name: "Yuki Tanaka", location: "Sharjah, UAE", quote: "The Xplorer Glide handled the coast road beautifully. Booking again the moment I'm back." },
+];
+
+/* ------------------------------------------------------------------ */
+/* Motion helpers                                                     */
+/* ------------------------------------------------------------------ */
+const EASE = [0.16, 1, 0.3, 1];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: EASE, delay: i * 0.1 },
+  }),
+};
+
+/* ------------------------------------------------------------------ */
+/* Small shared bits                                                  */
+/* ------------------------------------------------------------------ */
+function Eyebrow({ children, center }) {
+  return (
+    <div className={"flex items-center gap-2 mb-5 " + (center ? "justify-center" : "")}>
+      <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+      <span className="text-xs uppercase tracking-[0.2em] text-muted">{children}</span>
+    </div>
+  );
+}
+
+function Spec({ icon, text }) {
+  return (
+    <div className="flex items-center gap-2 text-sm text-white/80">
+      <iconify-icon icon={icon} className="text-accent text-base"></iconify-icon>
+      <span>{text}</span>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Section 1 — Nav                                                    */
+/* ------------------------------------------------------------------ */
+function Nav() {
+  return (
+    <motion.nav
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.8, ease: EASE }}
+      className="absolute top-4 left-0 right-0 z-50 px-4 md:px-8 flex items-center justify-between"
+    >
+      {/* Logo */}
+      <a href="#" className="text-2xl font-medium tracking-tight select-none">
+        Rydex<span className="text-accent">.</span>
+      </a>
+
+      {/* Center glass panel */}
+      <div className="glass-panel hidden md:flex items-center gap-6 rounded-full px-6 py-3">
+        <button className="flex items-center gap-1 text-sm text-white/80 hover:text-white transition-colors">
+          Models
+          <iconify-icon icon="solar:alt-arrow-down-linear" className="text-base"></iconify-icon>
+        </button>
+        <a href="#about" className="text-sm text-white/80 hover:text-white transition-colors">About</a>
+        <a href="#models" className="text-sm text-white/80 hover:text-white transition-colors">Fleet</a>
+        <span className="w-px h-4 bg-white/20" />
+        <button aria-label="Search" className="text-white/80 hover:text-accent transition-colors">
+          <iconify-icon icon="solar:minimalistic-magnifer-linear" className="text-lg"></iconify-icon>
+        </button>
+        <button aria-label="Account" className="text-white/80 hover:text-accent transition-colors">
+          <iconify-icon icon="solar:user-linear" className="text-lg"></iconify-icon>
+        </button>
+      </div>
+
+      {/* Right glass-panel circle with 3 lines (non-functional, matches source) */}
+      <button
+        aria-label="Menu"
+        className="glass-panel w-11 h-11 rounded-full flex flex-col items-center justify-center gap-[5px]"
+      >
+        <span className="w-4 h-[1px] bg-white" />
+        <span className="w-4 h-[1px] bg-white" />
+        <span className="w-4 h-[1px] bg-white" />
+      </button>
+    </motion.nav>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Section 1 — Hero                                                   */
+/* ------------------------------------------------------------------ */
+function Hero() {
+  return (
+    <section className="relative h-screen min-h-[720px] w-full overflow-hidden">
+      {/* Image layer — z-0, object-cover, scale-105 (prevents white edges) */}
+      <div className="absolute inset-0 scale-105 z-0">
+        <img src={HERO} alt="" className="w-full h-full object-cover" />
+      </div>
+
+      {/* Gradient overlay — z-10 */}
+      <div className="absolute inset-0 z-10 bg-gradient-to-b from-background/40 via-background/20 to-background/90" />
+
+      {/* Nav — z-50 */}
+      <Nav />
+
+      {/* Top info bar — absolute top-24 md:top-32 */}
+      <div className="absolute top-24 md:top-32 left-0 right-0 z-20 px-4 md:px-8 flex justify-between items-start">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}
+          className="flex items-center gap-2 text-sm"
+        >
+          <iconify-icon icon="solar:map-point-linear" className="text-accent text-base"></iconify-icon>
+          <span className="text-white/90">Dubai, UAE</span>
+        </motion.div>
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.4 }}
+          className="hidden md:block max-w-xs text-right text-sm leading-relaxed text-white/70"
+        >
+          The pinnacle of automotive luxury, delivered to your door across the Emirates.
+        </motion.p>
+      </div>
+
+      {/* Hero content — z-20, bottom-0, flex-col / lg:row */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 px-4 md:px-8 pb-10 md:pb-14 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: EASE, delay: 0.5 }}
+          className="text-5xl md:text-7xl tracking-tighter font-light max-w-3xl leading-[1.02]"
+        >
+          Enjoy Easy Rides,<br />Pick Your Way
+        </motion.h1>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: EASE, delay: 0.65 }}
+          className="flex flex-col sm:flex-row gap-3 shrink-0"
+        >
+          <a
+            href="#models"
+            className="group flex items-center justify-between gap-6 rounded-full border border-white/20 px-6 py-3.5 hover:text-accent hover:border-accent/40 transition-colors"
+          >
+            <span>Book a Car</span>
+            <iconify-icon icon="solar:arrow-right-linear" className="text-lg transition-transform group-hover:translate-x-1"></iconify-icon>
+          </a>
+          <a
+            href="#footer"
+            className="group flex items-center justify-between gap-6 rounded-full border border-white/20 px-6 py-3.5 hover:text-accent hover:border-accent/40 transition-colors"
+          >
+            <span>Get in Touch</span>
+            <iconify-icon icon="solar:arrow-right-linear" className="text-lg transition-transform group-hover:translate-x-1"></iconify-icon>
+          </a>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Section 2 — About Us                                               */
+/* ------------------------------------------------------------------ */
+function About() {
+  return (
+    <section id="about" className="px-4 md:px-8 py-24 md:py-32">
+      <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
+        {/* Left */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
+          className="lg:w-1/2"
+        >
+          <Eyebrow>About Us</Eyebrow>
+          <h2 className="text-4xl md:text-5xl font-light tracking-tighter leading-[1.05] mb-8">
+            Redefining the art of premium car rental
+          </h2>
+          <p className="text-muted leading-relaxed pb-8 border-b border-border max-w-lg">
+            Rydex is where precision engineering meets effortless service. We hand-select every
+            vehicle in our fleet, maintain it to concours standard, and deliver it wherever you
+            are — so the only thing you think about is the drive ahead.
+          </p>
+          <button className="mt-8 group flex items-center gap-4">
+            <span className="w-12 h-12 rounded-full bg-accent text-black flex items-center justify-center transition-transform group-hover:scale-105">
+              <iconify-icon icon="solar:arrow-right-linear" className="text-xl"></iconify-icon>
+            </span>
+            <span className="text-sm">Learn More</span>
+          </button>
+        </motion.div>
+
+        {/* Stats — 2x2 grid */}
+        <div className="lg:w-1/2 grid grid-cols-2 gap-x-8 gap-y-12">
+          {STATS.map((s, i) => (
+            <motion.div
+              key={s.label}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.4 }}
+            >
+              <div className="text-5xl md:text-6xl font-light tracking-tighter">
+                {s.num}
+                <span className="text-accent">{s.suffix}</span>
+              </div>
+              <div className="text-muted mt-2 text-sm">{s.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Section 3 — Featured Models (horizontal scroll)                    */
+/* ------------------------------------------------------------------ */
+function CarCard({ car, i }) {
+  return (
+    <motion.div
+      custom={i}
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.2 }}
+      className="group relative shrink-0 snap-start w-[85vw] sm:w-[70vw] md:w-[400px] h-[520px] rounded-3xl overflow-hidden"
+    >
+      <img
+        src={car.img}
+        alt={car.name}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+      {/* hover arrow */}
+      <div className="absolute top-5 right-5 w-10 h-10 rounded-full glass-panel flex items-center justify-center opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+        <iconify-icon icon="solar:arrow-right-up-linear" className="text-lg"></iconify-icon>
+      </div>
+
+      {/* bottom info card — glass-panel bg-card/80 */}
+      <div className="absolute bottom-4 left-4 right-4 glass-panel bg-card/80 rounded-2xl p-5">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-xl font-medium">{car.name}</h3>
+            <p className="text-muted text-sm">{car.type}</p>
+          </div>
+          <div className="text-right leading-none">
+            <div className="text-accent text-xl font-medium">{car.price}</div>
+            <div className="text-muted text-xs mt-1">/ day</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-5 pt-4 border-t border-white/10">
+          <Spec icon="solar:speedometer-linear" text={car.hp} />
+          <Spec icon="solar:routing-2-linear" text={car.km} />
+          <Spec icon="solar:map-point-linear" text={car.city} />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function Models() {
+  return (
+    <section id="models" className="py-24 md:py-32">
+      <div className="px-4 md:px-8 mb-12 flex items-end justify-between gap-6">
+        <div>
+          <Eyebrow>Featured Models</Eyebrow>
+          <h2 className="text-4xl md:text-5xl font-light tracking-tighter">Explore our fleet</h2>
+        </div>
+        <a
+          href="#models"
+          className="group hidden md:flex items-center gap-3 text-sm text-white/80 hover:text-accent transition-colors shrink-0"
+        >
+          View All
+          <iconify-icon icon="solar:arrow-right-linear" className="text-lg transition-transform group-hover:translate-x-1"></iconify-icon>
+        </a>
+      </div>
+
+      <div className="overflow-x-auto hide-scrollbar snap-x snap-mandatory">
+        <div className="flex gap-6 px-4 md:px-8 pb-2">
+          {CARS.map((car, i) => (
+            <CarCard key={car.name} car={car} i={i} />
+          ))}
+          <div className="shrink-0 w-2" aria-hidden="true" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Section 4 — Why Choose Us                                          */
+/* ------------------------------------------------------------------ */
+function WhyChooseUs() {
+  return (
+    <section className="relative px-4 md:px-8 py-24 md:py-32 overflow-hidden">
+      {/* central accent glow */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-accent/5 blur-[100px]" />
+
+      <div className="relative">
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.5 }}
+          className="text-center max-w-2xl mx-auto mb-16"
+        >
+          <Eyebrow center>Why Choose Us</Eyebrow>
+          <h2 className="text-4xl md:text-5xl font-light tracking-tighter">
+            Built around your journey
+          </h2>
+        </motion.div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {BENEFITS.map((b, i) => (
+            <motion.div
+              key={b.title}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.3 }}
+              className="group bg-card border border-border rounded-3xl p-8"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-background flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110">
+                <iconify-icon icon={b.icon} className="text-2xl text-accent"></iconify-icon>
+              </div>
+              <h3 className="text-xl font-medium mb-3">{b.title}</h3>
+              <p className="text-muted leading-relaxed">{b.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Section 5 — Testimonials (masonry)                                 */
+/* ------------------------------------------------------------------ */
+function Testimonials() {
+  return (
+    <section className="px-4 md:px-8 py-24 md:py-32">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.5 }}
+        className="text-center max-w-2xl mx-auto mb-16"
+      >
+        <Eyebrow center>Testimonials</Eyebrow>
+        <h2 className="text-4xl md:text-5xl font-light tracking-tighter">
+          Trusted by discerning drivers
+        </h2>
+      </motion.div>
+
+      <div className="relative h-[600px] overflow-hidden">
+        {/* top mask */}
+        <div className="pointer-events-none absolute top-0 left-0 right-0 h-32 z-10 bg-gradient-to-b from-background to-transparent" />
+        {/* bottom mask */}
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-32 z-10 bg-gradient-to-t from-background to-transparent" />
+
+        {/* masonry — animate-pulse on container, stops on hover */}
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 animate-pulse hover:animate-none">
+          {TESTIMONIALS.map((t) => (
+            <div
+              key={t.u}
+              className="break-inside-avoid mb-6 bg-card border border-border rounded-3xl p-6 text-center"
+            >
+              <img
+                src={"https://i.pravatar.cc/150?u=" + t.u}
+                alt={t.name}
+                className="w-14 h-14 rounded-full mx-auto mb-4 object-cover"
+              />
+              <p className="text-white/80 leading-relaxed mb-5">&ldquo;{t.quote}&rdquo;</p>
+              <div className="w-8 h-px bg-border mx-auto mb-4" />
+              <div className="font-medium">{t.name}</div>
+              <div className="text-muted text-sm">{t.location}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Section 6 — Footer                                                 */
+/* ------------------------------------------------------------------ */
+function Footer() {
+  return (
+    <footer id="footer" className="px-4 md:px-8 pt-24 md:pt-32 pb-10 border-t border-border">
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-12 mb-20">
+        <motion.h2
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.4 }}
+          className="text-5xl md:text-7xl font-light tracking-tighter max-w-2xl leading-[1.02]"
+        >
+          Ready to ride<span className="text-accent">?</span>
+        </motion.h2>
+        <a
+          href="#models"
+          className="group flex items-center justify-between gap-6 rounded-full bg-accent text-black px-7 py-4 shrink-0 hover:bg-accent/90 transition-colors"
+        >
+          <span className="font-medium">Book Your Car</span>
+          <iconify-icon icon="solar:arrow-right-linear" className="text-xl transition-transform group-hover:translate-x-1"></iconify-icon>
+        </a>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-16">
+        <div className="col-span-2 md:col-span-1">
+          <a href="#" className="text-2xl font-medium tracking-tight">
+            Rydex<span className="text-accent">.</span>
+          </a>
+          <p className="text-muted text-sm mt-4 max-w-xs leading-relaxed">
+            Premium car rental across the United Arab Emirates.
+          </p>
+        </div>
+        <div>
+          <div className="text-sm text-white mb-4">Explore</div>
+          <ul className="space-y-3 text-sm text-muted">
+            <li><a href="#models" className="hover:text-white transition-colors">Fleet</a></li>
+            <li><a href="#about" className="hover:text-white transition-colors">About</a></li>
+            <li><a href="#footer" className="hover:text-white transition-colors">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div className="text-sm text-white mb-4">Support</div>
+          <ul className="space-y-3 text-sm text-muted">
+            <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">Insurance</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
+          </ul>
+        </div>
+        <div>
+          <div className="text-sm text-white mb-4">Connect</div>
+          <ul className="space-y-3 text-sm text-muted">
+            <li><a href="#" className="hover:text-white transition-colors">Instagram</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">X / Twitter</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border text-sm text-muted">
+        <span>&copy; 2026 Rydex. All rights reserved.</span>
+        <span>Dubai, UAE</span>
+      </div>
+    </footer>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* App                                                                */
+/* ------------------------------------------------------------------ */
+function App() {
+  return (
+    <main className="relative">
+      <Hero />
+      <About />
+      <Models />
+      <WhyChooseUs />
+      <Testimonials />
+      <Footer />
+    </main>
+  );
+}
+
+createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
