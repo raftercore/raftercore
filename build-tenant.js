@@ -143,6 +143,16 @@ const RENAME = {
     },
     // Order matters: longest first, or "RafterCore" eats "RafterCore-Merchant".
     strings: [
+      // Filenames first, and lowercase, because RENAME.files lands these on
+      // disk lowercased. The display-name rules below would otherwise rewrite
+      // a link to "LegacyCore-Merchant.html" while the file is
+      // "legacycore-merchant.html", and Netlify serves case-sensitively — so
+      // every cross-link between the three portals 404s on a tenant deploy.
+      // These must stay ABOVE the display-name rules: once the bare name is
+      // replaced, the .html rule can no longer match.
+      [/RafterCore-Merchant\.html/g, 'legacycore-merchant.html'],
+      [/RafterCore-Customer\.html/g, 'legacycore-customer.html'],
+      [/RafterCore-Owner\.html/g,    'legacycore-owner.html'],
       [/RafterCore-Merchant/g, 'LegacyCore-Merchant'],
       [/RafterCore-Customer/g, 'LegacyCore-Customer'],
       [/RafterCore-Owner/g,    'LegacyCore-Owner'],
@@ -270,4 +280,8 @@ function main() {
   console.log(`build-tenant: ${files} files -> dist/`);
 }
 
-main();
+/* Exported so tests can assert on the tables without executing a build. The
+ * guard keeps `node build-tenant.js` behaving exactly as before. */
+module.exports = { APP_FILES, APP_DIRS, NEVER, RENAME, TENANT_ROOT, TENANT_SCAFFOLD };
+
+if (require.main === module) main();
