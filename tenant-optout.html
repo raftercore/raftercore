@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Unsubscribe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Public+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* No sign-in. Someone opting out should never have to authenticate, and
+   requiring it is itself a compliance problem. Reachable from a link in an
+   email footer, from List-Unsubscribe, or typed in. */
+:root{--bg:#000;--s1:#0B0D0F;--s2:#14171A;--line:#272C32;--line-hi:#3A4149;
+  --t1:#FFF;--t2:#BFC6CD;--t3:#828A93;--ok:#3FAE6B;--bad:#E0533D;
+  --disp:'Chakra Petch',system-ui,sans-serif;--ui:'Public Sans',system-ui,sans-serif;--cut:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t2);font-family:var(--ui);font-weight:300;line-height:1.6;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:clamp(20px,5vw,48px);
+  -webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--t1);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.card{width:100%;max-width:520px;background:var(--s1);border:1px solid var(--line);padding:clamp(24px,5vw,38px)}
+h1{font-family:var(--disp);font-weight:700;color:var(--t1);font-size:1.5rem;line-height:1.1;margin-bottom:10px}
+p.sub{font-size:.93rem;color:var(--t3);margin-bottom:26px}
+label{display:block;font-size:.85rem;color:var(--t2);margin-bottom:7px}
+input[type=text]{width:100%;background:var(--s2);border:1px solid var(--line);color:var(--t1);
+  font-family:var(--ui);font-size:.97rem;padding:12px 13px}
+input[type=text]:focus{outline:0;border-color:var(--t1)}
+fieldset{border:0;margin:22px 0 4px}
+legend{font-size:.85rem;color:var(--t2);margin-bottom:11px;padding:0}
+.ch{display:flex;align-items:center;gap:10px;font-size:.92rem;margin-bottom:9px;color:var(--t2)}
+.ch input{width:16px;height:16px;accent-color:#fff}
+button{margin-top:24px;width:100%;font-family:var(--disp);font-weight:600;font-size:.85rem;
+  letter-spacing:.07em;padding:13px;background:var(--t1);color:#000;border:0;cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)))}
+button:disabled{background:var(--line-hi);color:var(--t3);cursor:default}
+.msg{margin-top:20px;padding:13px 16px;background:var(--s2);border-left:3px solid var(--ok);
+  font-size:.9rem;display:none;color:var(--t2)}
+.msg.err{border-left-color:var(--bad)}
+footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);font-size:.78rem;color:var(--t3)}
+footer a{color:var(--t2)}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Unsubscribe</h1>
+  <p class="sub">Enter the email address or mobile number we contacted you on. This takes effect immediately and needs no account.</p>
+
+  <label for="addr">Email address or mobile number</label>
+  <input id="addr" type="text" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false">
+
+  <fieldset>
+    <legend>Stop sending</legend>
+    <label class="ch"><input type="checkbox" value="email" checked> Email</label>
+    <label class="ch"><input type="checkbox" value="sms" checked> Text messages</label>
+    <label class="ch"><input type="checkbox" value="phone"> Phone calls</label>
+  </fieldset>
+
+  <button id="go">Unsubscribe</button>
+  <div class="msg" id="msg" role="status" aria-live="polite"></div>
+
+  <footer>
+    Records about work already done are kept — this stops marketing contact, not
+    your estimate, invoice or warranty. To have your data deleted, use the
+    <a href="/delete-account.html">data request</a> page.
+  </footer>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const params = new URLSearchParams(location.search);
+if (params.get('a')) $('#addr').value = params.get('a');
+
+function show(text, isErr) {
+  const m = $('#msg');
+  m.textContent = text;
+  m.className = 'msg' + (isErr ? ' err' : '');
+  m.style.display = 'block';
+  if (isErr) $('#go').disabled = false;
+}
+
+$('#go').addEventListener('click', async () => {
+  const address  = $('#addr').value.trim();
+  const channels = [...document.querySelectorAll('.ch input:checked')].map((c) => c.value);
+
+  if (!address)         return show('Enter the address or number we contacted you on.', true);
+  if (!channels.length) return show('Pick at least one thing to stop.', true);
+
+  $('#go').disabled = true;
+  try {
+    await fetch('/.netlify/functions/purlin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'optout', address, channels, token: params.get('t') || null }),
+    });
+    // Same message whatever came back. A different response for a known
+    // address turns this page into a way to test whether someone is a
+    // customer, and an opt-out that shows an error is one the sender can
+    // later claim never arrived.
+    show('Done. You will not be contacted on that address again.');
+  } catch (_) {
+    show('Something went wrong. Email us and we will action it by hand.', true);
+  }
+});
+</script>
+</body>
+</html>
