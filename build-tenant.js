@@ -10,7 +10,7 @@
  * internal files.
  *
  * It does not survive a second tenant. Deploying this repo to
- * crm.legacypros.io as-is would serve RafterCore's whole marketing site off
+ * legacy.raftercore.app as-is would serve RafterCore's whole marketing site off
  * Legacy's domain — 56 root HTML pages including pricing, the competitor
  * comparison pages, the storm.html lead marketplace, and terms.html,
  * msa.html and dpa.html. A licensee's customers would land on the
